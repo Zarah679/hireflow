@@ -1,25 +1,16 @@
-# Deploying HireFlow
+# Deploying HireFlow to Render
 
-HireFlow uses two services in production:
+HireFlow runs as one Render Web Service. Render builds the React/Vite frontend,
+then Express serves `frontend/dist` and all `/api` routes from the same origin.
 
-- Vercel hosts the React/Vite frontend.
-- Render hosts the Express API.
-- PostgreSQL is provided by Render or another managed database provider.
+## Render service settings
 
-## Render backend
+Create a Render Web Service connected to the repository and use:
 
-Create a Web Service connected to this repository.
-
-Build command:
-
-```sh
-npm ci --prefix backend
-```
-
-Start command:
-
-```sh
-npm start --prefix backend
+```text
+Root Directory: leave blank (repository root)
+Build Command: npm ci --prefix backend && npm ci --prefix frontend && npm run build --prefix frontend
+Start Command: npm start --prefix backend
 ```
 
 Configure these environment variables:
@@ -29,14 +20,10 @@ NODE_ENV=production
 DATABASE_URL=postgresql://<user>:<password>@<host>:<port>/<database>
 DATABASE_SSL=<true-or-false>
 JWT_SECRET=<long-random-string>
-FRONTEND_URLS=https://<production-vercel-domain>,https://<preview-vercel-domain>
 ```
 
-Render supplies `PORT` automatically. `FRONTEND_URLS` must contain only the
-allowed Vercel origins, separated by commas, with no paths or wildcards. Use
-`DATABASE_SSL=true` when the database provider requires SSL.
-
-Generate a JWT secret locally with:
+Render supplies `PORT` automatically. Use `DATABASE_SSL=true` when the managed
+database requires SSL. Generate a JWT secret locally with:
 
 ```sh
 openssl rand -hex 32
@@ -55,31 +42,12 @@ psql "$DATABASE_URL" -f backend/database/schema.sql
 Do not run `npm run seed` or `npm run populate` in production. Both scripts are
 development-only and reject `NODE_ENV=production`.
 
-## Vercel frontend
-
-Import the repository into Vercel and set the Root Directory to `frontend`.
-Vercel will use the existing Vite build configuration.
-
-Configure this environment variable before building:
-
-```text
-VITE_API_BASE_URL=https://<render-service-domain>
-```
-
-Use the Render service origin only, with no `/api` suffix or trailing slash.
-Frontend service calls already add paths such as `/api/auth/login`.
-
-After changing `VITE_API_BASE_URL`, redeploy the frontend because Vite embeds
-environment variables at build time.
-
 ## Deployment smoke check
 
 1. Open `https://<render-service-domain>/api/health` and confirm the database is
    connected.
-2. Open the Vercel application and register a recruiter.
+2. Open `https://<render-service-domain>/` and register a recruiter.
 3. Create a job and candidate.
-4. Move the candidate to another pipeline stage and refresh the page.
+4. Refresh `/app`, `/app/jobs`, and `/app/pipeline` to confirm the React Router
+   fallback works.
 5. Log out and back in, then confirm the records remain available.
-
-If browser requests are blocked by CORS, confirm that the exact Vercel origin is
-included in Render's `FRONTEND_URLS`, including `https://`.

@@ -20,7 +20,7 @@ Run the backend in a second terminal so authenticated pages can load data.
 npm run build
 ```
 
-The compiled files are written to `dist`. In production, Vercel serves the
-frontend while API requests go to the Render URL configured through
-`VITE_API_BASE_URL`. See [`../DEPLOYMENT.md`](../DEPLOYMENT.md) for the full
+The compiled files are written to `dist`. In production, the Express backend
+serves this directory and the frontend uses relative `/api` requests on the
+same Render origin. See [`../DEPLOYMENT.md`](../DEPLOYMENT.md) for the full
 deployment setup.

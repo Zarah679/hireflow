@@ -1,5 +1,4 @@
 export const unauthorizedEventName = 'hireflow:unauthorized'
-const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '')
 
 export async function apiRequest(path, options = {}) {
   const { method = 'GET', body, token } = options
@@ -16,7 +15,7 @@ export async function apiRequest(path, options = {}) {
   let response
 
   try {
-    response = await fetch(`${apiBaseUrl}${path}`, {
+    response = await fetch(path, {
       method,
       headers,
       body: body ? JSON.stringify(body) : undefined,

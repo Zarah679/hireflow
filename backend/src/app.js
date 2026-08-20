@@ -1,4 +1,6 @@
 import express from 'express'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import pool from './db.js'
 import authRoutes from './routes/authRoutes.js'
 import jobRoutes from './routes/jobRoutes.js'
@@ -6,54 +8,8 @@ import { candidateRoutes, jobCandidateRoutes } from './routes/candidateRoutes.js
 import dashboardRoutes from './routes/dashboardRoutes.js'
 
 const app = express()
-const configuredFrontendUrls = new Set(
-  (process.env.FRONTEND_URLS || '')
-    .split(',')
-    .map((url) => url.trim().replace(/\/$/, ''))
-    .filter(Boolean),
-)
-console.log('Configured frontend URLs:', [...configuredFrontendUrls])
-console.log('NODE_ENV:', process.env.NODE_ENV)
-
-function isLocalDevelopmentOrigin(origin) {
-  if (process.env.NODE_ENV === 'production') return false
-
-  try {
-    const originUrl = new URL(origin)
-    return originUrl.protocol === 'http:'
-      && (originUrl.hostname === 'localhost' || originUrl.hostname === '127.0.0.1')
-  } catch {
-    return false
-  }
-}
-
-// Production origins must be explicitly configured; localhost is allowed only in development.
-app.use((request, response, next) => {
-  const requestOrigin = request.headers.origin
-  const normalizedOrigin = requestOrigin?.replace(/\/$/, '')
-  const isAllowedOrigin = Boolean(
-    normalizedOrigin
-    && (
-      configuredFrontendUrls.has(normalizedOrigin)
-      || isLocalDevelopmentOrigin(normalizedOrigin)
-    ),
-  )
-
-  if (isAllowedOrigin) {
-    response.setHeader('Access-Control-Allow-Origin', requestOrigin)
-    response.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type')
-    response.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS')
-    response.setHeader('Vary', 'Origin')
-  }
-
-  if (request.method === 'OPTIONS') {
-    return isAllowedOrigin
-      ? response.sendStatus(204)
-      : response.status(403).json({ message: 'Origin is not allowed' })
-  }
-
-  next()
-})
+const currentDirectory = path.dirname(fileURLToPath(import.meta.url))
+const frontendDistPath = path.resolve(currentDirectory, '../../frontend/dist')
 
 app.use(express.json())
 
@@ -81,6 +37,19 @@ app.get('/api/health', async (request, response) => {
     })
   }
 })
+
+// Render serves the compiled frontend and API from the same production service.
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(frontendDistPath))
+
+  app.use((request, response, next) => {
+    if (request.method === 'GET' && !request.path.startsWith('/api/')) {
+      return response.sendFile(path.join(frontendDistPath, 'index.html'))
+    }
+
+    next()
+  })
+}
 
 app.use((request, response) => {
   response.status(404).json({ message: 'Route not found' })
