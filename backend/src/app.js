@@ -12,6 +12,8 @@ const configuredFrontendUrls = new Set(
     .map((url) => url.trim().replace(/\/$/, ''))
     .filter(Boolean),
 )
+console.log('Configured frontend URLs:', [...configuredFrontendUrls])
+console.log('NODE_ENV:', process.env.NODE_ENV)
 
 function isLocalDevelopmentOrigin(origin) {
   if (process.env.NODE_ENV === 'production') return false
