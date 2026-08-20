@@ -123,7 +123,7 @@ separate analytics system.
 
 ## Production
 
-In production, the backend serves the compiled React application from
-`frontend/dist` as well as the `/api` routes. See
+In production, the backend runs as an API-only Render service. The separately
+deployed Vercel origin is allowed through `FRONTEND_URL`. See
 [`../DEPLOYMENT.md`](../DEPLOYMENT.md) for environment variables, build
 commands, database initialization, and the deployment smoke check.

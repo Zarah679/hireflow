@@ -40,8 +40,9 @@ PostgreSQL
 
 Frontend API calls are centralized under `frontend/src/services` and
 `frontend/src/lib/api.js`. Express routes validate requests, authenticate JWTs,
-and enforce ownership before querying PostgreSQL. In production, Express serves
-the compiled React application and API from the same origin.
+and enforce ownership before querying PostgreSQL. In production, the Vite app
+and Express API can be deployed separately, with their origins configured using
+environment variables.
 
 Key directories:
 
@@ -132,6 +133,7 @@ NODE_ENV=<environment>
 DATABASE_URL=postgresql://<user>:<password>@<host>:<port>/<database>
 DATABASE_SSL=<true-or-false>
 JWT_SECRET=<long-random-string>
+FRONTEND_URL=https://<frontend-domain>
 ```
 
 Use `DATABASE_SSL=false` for a typical local PostgreSQL installation. Never
@@ -182,9 +184,10 @@ npm run build --prefix frontend
 npm start --prefix backend
 ```
 
-Set `NODE_ENV=production` and configure the production database and JWT secret
-through the hosting provider. See [DEPLOYMENT.md](DEPLOYMENT.md) for the full
-deployment checklist.
+Set `NODE_ENV=production` and configure the production database, JWT secret,
+and frontend origin through the backend hosting provider. Set
+`VITE_API_BASE_URL=https://<backend-domain>` when building the frontend. See
+[DEPLOYMENT.md](DEPLOYMENT.md) for the full deployment checklist.
 
 ## Future improvements
 

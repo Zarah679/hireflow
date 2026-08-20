@@ -1,57 +1,52 @@
 # Deploying HireFlow
 
-HireFlow is prepared to run as one web service with a managed PostgreSQL
-database. Express serves both the REST API and the compiled React application,
-so the frontend and API share one origin and do not require CORS configuration.
+HireFlow uses two services in production:
 
-## Production requirements
+- Vercel hosts the React/Vite frontend.
+- Render hosts the Express API.
+- PostgreSQL is provided by Render or another managed database provider.
 
-- Node.js 20 or newer
-- PostgreSQL
-- A public HTTPS web service
+## Render backend
 
-## Environment variables
+Create a Web Service connected to this repository.
 
-Set these variables on the web service:
-
-```text
-NODE_ENV=production
-DATABASE_URL=postgresql://USER:PASSWORD@HOST:PORT/DATABASE
-DATABASE_SSL=true
-JWT_SECRET=YOUR_LONG_RANDOM_SECRET
-```
-
-Most managed PostgreSQL providers require `DATABASE_SSL=true`. Set it to
-`false` only when the provider explicitly does not use SSL. Generate a JWT
-secret locally with:
-
-```sh
-openssl rand -hex 32
-```
-
-Do not commit the generated secret or a production database URL.
-
-The hosting provider normally supplies `PORT`; HireFlow uses it automatically.
-
-## Build and start commands
-
-Run the build from the repository root:
+Build command:
 
 ```sh
 npm ci --prefix backend
-npm ci --prefix frontend
-npm run build --prefix frontend
 ```
 
-Start the application from the repository root:
+Start command:
 
 ```sh
 npm start --prefix backend
 ```
 
-## Initialize the production database
+Configure these environment variables:
 
-Run the schema once against a new, empty production database:
+```text
+NODE_ENV=production
+DATABASE_URL=postgresql://<user>:<password>@<host>:<port>/<database>
+DATABASE_SSL=<true-or-false>
+JWT_SECRET=<long-random-string>
+FRONTEND_URL=https://<vercel-app-domain>
+```
+
+Render supplies `PORT` automatically. `FRONTEND_URL` must contain only the
+Vercel origin, with no path or trailing slash. Use `DATABASE_SSL=true` when the
+database provider requires SSL.
+
+Generate a JWT secret locally with:
+
+```sh
+openssl rand -hex 32
+```
+
+Do not commit the generated value or any production database credentials.
+
+## Initialize PostgreSQL
+
+Run the schema once against a new production database:
 
 ```sh
 psql "$DATABASE_URL" -f backend/database/schema.sql
@@ -60,18 +55,31 @@ psql "$DATABASE_URL" -f backend/database/schema.sql
 Do not run `npm run seed` or `npm run populate` in production. Both scripts are
 development-only and reject `NODE_ENV=production`.
 
+## Vercel frontend
+
+Import the repository into Vercel and set the Root Directory to `frontend`.
+Vercel will use the existing Vite build configuration.
+
+Configure this environment variable before building:
+
+```text
+VITE_API_BASE_URL=https://<render-service-domain>
+```
+
+Use the Render service origin only, with no `/api` suffix or trailing slash.
+Frontend service calls already add paths such as `/api/auth/login`.
+
+After changing `VITE_API_BASE_URL`, redeploy the frontend because Vite embeds
+environment variables at build time.
+
 ## Deployment smoke check
 
-After deployment:
-
-1. Open `/api/health` and confirm the response says the database is connected.
-2. Open `/` and register a recruiter account.
+1. Open `https://<render-service-domain>/api/health` and confirm the database is
+   connected.
+2. Open the Vercel application and register a recruiter.
 3. Create a job and candidate.
 4. Move the candidate to another pipeline stage and refresh the page.
-5. Log out and back in, then confirm the records are still present.
+5. Log out and back in, then confirm the records remain available.
 
-If direct links such as `/app/jobs` return the React application, the SPA
-fallback is working correctly.
-
-New passwords must be 8–128 characters and include an uppercase letter,
-lowercase letter, number, and special character.
+If browser requests are blocked by CORS, confirm that Render's `FRONTEND_URL`
+exactly matches the deployed Vercel origin, including `https://`.

@@ -6,6 +6,27 @@ import { candidateRoutes, jobCandidateRoutes } from './routes/candidateRoutes.js
 import dashboardRoutes from './routes/dashboardRoutes.js'
 
 const app = express()
+const allowedFrontendUrl = process.env.FRONTEND_URL?.replace(/\/$/, '')
+
+app.use((request, response, next) => {
+  const requestOrigin = request.headers.origin
+  const isAllowedOrigin = requestOrigin && requestOrigin === allowedFrontendUrl
+
+  if (isAllowedOrigin) {
+    response.setHeader('Access-Control-Allow-Origin', requestOrigin)
+    response.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type')
+    response.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS')
+    response.setHeader('Vary', 'Origin')
+  }
+
+  if (request.method === 'OPTIONS') {
+    return isAllowedOrigin
+      ? response.sendStatus(204)
+      : response.status(403).json({ message: 'Origin is not allowed' })
+  }
+
+  next()
+})
 
 app.use(express.json())
 
