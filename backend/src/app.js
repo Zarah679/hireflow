@@ -6,11 +6,36 @@ import { candidateRoutes, jobCandidateRoutes } from './routes/candidateRoutes.js
 import dashboardRoutes from './routes/dashboardRoutes.js'
 
 const app = express()
-const allowedFrontendUrl = process.env.FRONTEND_URL?.replace(/\/$/, '')
+const configuredFrontendUrls = new Set(
+  (process.env.FRONTEND_URLS || '')
+    .split(',')
+    .map((url) => url.trim().replace(/\/$/, ''))
+    .filter(Boolean),
+)
 
+function isLocalDevelopmentOrigin(origin) {
+  if (process.env.NODE_ENV === 'production') return false
+
+  try {
+    const originUrl = new URL(origin)
+    return originUrl.protocol === 'http:'
+      && (originUrl.hostname === 'localhost' || originUrl.hostname === '127.0.0.1')
+  } catch {
+    return false
+  }
+}
+
+// Production origins must be explicitly configured; localhost is allowed only in development.
 app.use((request, response, next) => {
   const requestOrigin = request.headers.origin
-  const isAllowedOrigin = requestOrigin && requestOrigin === allowedFrontendUrl
+  const normalizedOrigin = requestOrigin?.replace(/\/$/, '')
+  const isAllowedOrigin = Boolean(
+    normalizedOrigin
+    && (
+      configuredFrontendUrls.has(normalizedOrigin)
+      || isLocalDevelopmentOrigin(normalizedOrigin)
+    ),
+  )
 
   if (isAllowedOrigin) {
     response.setHeader('Access-Control-Allow-Origin', requestOrigin)

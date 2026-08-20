@@ -124,6 +124,6 @@ separate analytics system.
 ## Production
 
 In production, the backend runs as an API-only Render service. The separately
-deployed Vercel origin is allowed through `FRONTEND_URL`. See
+deployed Vercel origins are allowed through `FRONTEND_URLS`. See
 [`../DEPLOYMENT.md`](../DEPLOYMENT.md) for environment variables, build
 commands, database initialization, and the deployment smoke check.

@@ -29,12 +29,12 @@ NODE_ENV=production
 DATABASE_URL=postgresql://<user>:<password>@<host>:<port>/<database>
 DATABASE_SSL=<true-or-false>
 JWT_SECRET=<long-random-string>
-FRONTEND_URL=https://<vercel-app-domain>
+FRONTEND_URLS=https://<production-vercel-domain>,https://<preview-vercel-domain>
 ```
 
-Render supplies `PORT` automatically. `FRONTEND_URL` must contain only the
-Vercel origin, with no path or trailing slash. Use `DATABASE_SSL=true` when the
-database provider requires SSL.
+Render supplies `PORT` automatically. `FRONTEND_URLS` must contain only the
+allowed Vercel origins, separated by commas, with no paths or wildcards. Use
+`DATABASE_SSL=true` when the database provider requires SSL.
 
 Generate a JWT secret locally with:
 
@@ -81,5 +81,5 @@ environment variables at build time.
 4. Move the candidate to another pipeline stage and refresh the page.
 5. Log out and back in, then confirm the records remain available.
 
-If browser requests are blocked by CORS, confirm that Render's `FRONTEND_URL`
-exactly matches the deployed Vercel origin, including `https://`.
+If browser requests are blocked by CORS, confirm that the exact Vercel origin is
+included in Render's `FRONTEND_URLS`, including `https://`.

@@ -133,7 +133,7 @@ NODE_ENV=<environment>
 DATABASE_URL=postgresql://<user>:<password>@<host>:<port>/<database>
 DATABASE_SSL=<true-or-false>
 JWT_SECRET=<long-random-string>
-FRONTEND_URL=https://<frontend-domain>
+FRONTEND_URLS=https://<frontend-domain>,https://<optional-second-domain>
 ```
 
 Use `DATABASE_SSL=false` for a typical local PostgreSQL installation. Never
@@ -185,7 +185,7 @@ npm start --prefix backend
 ```
 
 Set `NODE_ENV=production` and configure the production database, JWT secret,
-and frontend origin through the backend hosting provider. Set
+and comma-separated frontend origins through the backend hosting provider. Set
 `VITE_API_BASE_URL=https://<backend-domain>` when building the frontend. See
 [DEPLOYMENT.md](DEPLOYMENT.md) for the full deployment checklist.
 
