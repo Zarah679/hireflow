@@ -1,0 +1,104 @@
+.hero-grid {
+  background-image:
+    radial-gradient(circle at 82% 18%, rgba(139, 92, 246, 0.16), transparent 28%),
+    radial-gradient(circle at 68% 68%, rgba(59, 130, 246, 0.12), transparent 30%),
+    linear-gradient(rgba(24, 24, 27, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(24, 24, 27, 0.045) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.pipeline-shell {
+  box-shadow:
+    0 32px 90px -36px rgba(79, 70, 229, 0.75),
+    0 20px 45px -28px rgba(24, 24, 27, 0.5);
+}
+
+.auth-panel {
+  background-image:
+    radial-gradient(circle at 18% 25%, rgba(59, 130, 246, 0.28), transparent 30%),
+    radial-gradient(circle at 82% 72%, rgba(139, 92, 246, 0.24), transparent 34%),
+    linear-gradient(145deg, #09090b 0%, #18181b 100%);
+}
+
+.dark-glow {
+  background-image:
+    radial-gradient(circle at 15% 20%, rgba(37, 99, 235, 0.2), transparent 26%),
+    radial-gradient(circle at 88% 72%, rgba(124, 58, 237, 0.18), transparent 28%);
+}
+
+.dashboard-canvas {
+  background-image:
+    radial-gradient(circle at 18% 8%, rgba(59, 130, 246, 0.09), transparent 25%),
+    radial-gradient(circle at 90% 30%, rgba(139, 92, 246, 0.09), transparent 24%);
+}
+
+.dashboard-hero {
+  background-image:
+    radial-gradient(circle at 82% 10%, rgba(255, 255, 255, 0.28), transparent 22%),
+    radial-gradient(circle at 70% 110%, rgba(192, 132, 252, 0.5), transparent 35%),
+    linear-gradient(120deg, #2563eb 0%, #4f46e5 48%, #7c3aed 100%);
+  box-shadow: 0 24px 60px -28px rgba(79, 70, 229, 0.7);
+}
+
+.fade-up {
+  animation: fade-up 650ms ease-out both;
+}
+
+.fade-up-delay {
+  animation: fade-up 650ms 120ms ease-out both;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.drawer-enter {
+  animation: drawer-enter 280ms ease-out both;
+}
+
+.toast-enter {
+  animation: toast-enter 240ms ease-out both;
+}
+
+@keyframes toast-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes drawer-enter {
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .fade-up,
+  .fade-up-delay,
+  .drawer-enter,
+  .toast-enter {
+    animation: none;
+  }
+}
