@@ -1,6 +1,4 @@
 import express from 'express'
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 import pool from './db.js'
 import authRoutes from './routes/authRoutes.js'
 import jobRoutes from './routes/jobRoutes.js'
@@ -8,8 +6,6 @@ import { candidateRoutes, jobCandidateRoutes } from './routes/candidateRoutes.js
 import dashboardRoutes from './routes/dashboardRoutes.js'
 
 const app = express()
-const currentDirectory = path.dirname(fileURLToPath(import.meta.url))
-const frontendDistPath = path.resolve(currentDirectory, '../../frontend/dist')
 
 app.use(express.json())
 
@@ -37,19 +33,6 @@ app.get('/api/health', async (request, response) => {
     })
   }
 })
-
-// In production, Express serves the compiled React app from the same origin as the API.
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(frontendDistPath))
-
-  app.use((request, response, next) => {
-    if (request.method === 'GET' && !request.path.startsWith('/api/')) {
-      return response.sendFile(path.join(frontendDistPath, 'index.html'))
-    }
-
-    next()
-  })
-}
 
 app.use((request, response) => {
   response.status(404).json({ message: 'Route not found' })
